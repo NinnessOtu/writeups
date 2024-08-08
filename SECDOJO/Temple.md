@@ -44,11 +44,11 @@ While analyzing the created processes, we have come across some noteworthy findi
 
 2. Additionally, we've detected the utilization of **Sharphound**, with another user, "**tsilva**," to conduct domain enumeration within the **secdojo.lab** domain.
 
-[https://lh6.googleusercontent.com/0gFzeqo_bS1v7K61hPEUXUpEeKv1uE5MGSzlqm4efD-ssCsrwAFznjKrxUNeCYkxMh1REBTX3V3N2Tr82qMOOxYtOydyiLd82uzaYt9BCsbN1AyH2EY1MWwkyBDraB7Dl6AbKlF6A6pUrMSZA7zisSE](https://lh6.googleusercontent.com/0gFzeqo_bS1v7K61hPEUXUpEeKv1uE5MGSzlqm4efD-ssCsrwAFznjKrxUNeCYkxMh1REBTX3V3N2Tr82qMOOxYtOydyiLd82uzaYt9BCsbN1AyH2EY1MWwkyBDraB7Dl6AbKlF6A6pUrMSZA7zisSE)
+![Untitled](./pictures/2.png)
 
 The information we've gathered so far is valuable, but for now, let's refocus on our primary objective: identifying the source of this breach. Upon analyzing login event ID 4624, we have identified a potential use of the "pass the hash" technique, specifically targeting the **Guest** account.
 
-[https://lh6.googleusercontent.com/q2Uvt3_RufL00FeiC1zP8AwH5HrXFh7IPUqkwOfTcY3prPJ2-AI7-QBYWlDKcW87PfWCttjSZL0l2PHL9L4draYrw0V26buYh4hO89JBAKSEYvRn4Gfn2Z5A6cXQF2CSzxfK3CtMrETXunCxlGttxqY](https://lh6.googleusercontent.com/q2Uvt3_RufL00FeiC1zP8AwH5HrXFh7IPUqkwOfTcY3prPJ2-AI7-QBYWlDKcW87PfWCttjSZL0l2PHL9L4draYrw0V26buYh4hO89JBAKSEYvRn4Gfn2Z5A6cXQF2CSzxfK3CtMrETXunCxlGttxqY)
+![Untitled](./pictures/3.png)
 
 This appears intriguing, but we won't halt our investigation at this point. Instead, we will proceed by tracing the **logonID** of the subject user to further scrutinize their actions and determine the origin of these activities:
 
@@ -56,7 +56,7 @@ This appears intriguing, but we won't halt our investigation at this point. Inst
 Query : ((winlog.logon.id : 0x893c5f) OR (winlog.event_data.LogonId : 0x893c5f))
 ```
 
-[https://lh3.googleusercontent.com/sfRzLl4QSzjpoOfG2U3qV3xSn4gVLypiGbpsTXOZ4ZhoVM2zK5GXI4JxMx-zDQ9EnDuxvPCzTUXC8djZ-gL--I4Vl2G5YLK3FDWjxyMzng1Jhv2vpuMapGKmG0hqF9HPoONEJHFkY-BEBD39CbW8LJ4](https://lh3.googleusercontent.com/sfRzLl4QSzjpoOfG2U3qV3xSn4gVLypiGbpsTXOZ4ZhoVM2zK5GXI4JxMx-zDQ9EnDuxvPCzTUXC8djZ-gL--I4Vl2G5YLK3FDWjxyMzng1Jhv2vpuMapGKmG0hqF9HPoONEJHFkY-BEBD39CbW8LJ4)
+![Untitled](./pictures/4.png)
 
 The event of particular interest here is the logon event where "**mark**" explicitly logs in as "**john**" with a LogonType of 2, which could suggest the use of a "**runas**" command.
 
@@ -72,7 +72,7 @@ Query : ((winlog.logon.id : 0x6fe292) OR (winlog.event_data.LogonId : 0x6fe292))
 
 Once more, we will begin by filtering based on process creations to check if there are any noteworthy command lines:
 
-[https://lh6.googleusercontent.com/ItlPtU6oIr1CLbN54sQ6KI7rChKPhQxsml2ddwFFgTWaQcWXZZoMkL2P87sLrA2H69SdhdEDL5ZbdK8ku20Z5UYfnoA-l0caF7KN9LLOdK77kLZYy55yEZjJp-JkQitQE-JGS-2J8pUKSjJo0jdlo_c](https://lh6.googleusercontent.com/ItlPtU6oIr1CLbN54sQ6KI7rChKPhQxsml2ddwFFgTWaQcWXZZoMkL2P87sLrA2H69SdhdEDL5ZbdK8ku20Z5UYfnoA-l0caF7KN9LLOdK77kLZYy55yEZjJp-JkQitQE-JGS-2J8pUKSjJo0jdlo_c)
+![Untitled](./pictures/5.png)
 
 Here we have some intriguing findings:
 
@@ -103,13 +103,13 @@ These findings present us with another hypothesis to explore later, involving Po
 
 However, let's stay focused on our current goal. We should now examine the logon event associated with this particular **logonID** :
 
-[https://lh4.googleusercontent.com/wPj5azhOXzYqjhXOn9uk5vU2dz-l09AxzZT6B8kj6oqr59KXXAeMAGfDASTTFYgjcqUA1MmlmUY3H4Wy-HvFopWBZ8HS7lhWf7_7Fp0CgPZY_ubPwkrOoxbyLZn0TXvck4yYTnfJgLLLM0knCOMKyXA](https://lh4.googleusercontent.com/wPj5azhOXzYqjhXOn9uk5vU2dz-l09AxzZT6B8kj6oqr59KXXAeMAGfDASTTFYgjcqUA1MmlmUY3H4Wy-HvFopWBZ8HS7lhWf7_7Fp0CgPZY_ubPwkrOoxbyLZn0TXvck4yYTnfJgLLLM0knCOMKyXA)
+![Untitled](./pictures/6.png)
 
 We've come across a constraint in our ability to trace the subject user's logonID, as it pertains to the local system itself. However, this presents an opportunity rather than a setback. We can take note of this information and leverage it to construct more inquiries and hypotheses for our ongoing investigation.
 
 Specifically, it seems that "mark" has instigated the suspicious activities we've identified. Consequently, we can proceed with the assumption that "mark" is the compromised user and proceed with a thorough examination of events leading up to this logon:
 
-[https://lh3.googleusercontent.com/8Am4xVYneeZfZHya3urWUFGAtxGfjLpRwm5An9pFcHU23gwdumRHvo2FGbDBKVW-mZx8IL-rPArQu1QGMKlZydIwTlgbzx3Czki192OnOxzbBYVdMUZcO-2QWZTVeMvfiaUlu8d2XZrEVPUuIrBpBXQ](https://lh3.googleusercontent.com/8Am4xVYneeZfZHya3urWUFGAtxGfjLpRwm5An9pFcHU23gwdumRHvo2FGbDBKVW-mZx8IL-rPArQu1QGMKlZydIwTlgbzx3Czki192OnOxzbBYVdMUZcO-2QWZTVeMvfiaUlu8d2XZrEVPUuIrBpBXQ)
+![Untitled](./pictures/7.png)
 
 Upon filtering by **[user.name](http://user.name/):mark**, we observed a potential brute force pattern involving the "**mark**" user from the IP address **192.168.11.18**. Interestingly, this IP is the same one from which we identified that "**mark**" downloaded something using a PowerShell command. Notably, the brute force attempts culminated in a **successful login**.
 
@@ -117,21 +117,21 @@ Subsequently, we noted an **RDP** login from IP address **192.168.11.55**.
 
 With this information in hand, let's now investigate the type of activity originating from the IP address **192.168.11.18**:
 
-[https://lh4.googleusercontent.com/f77Q4rx9-SXc4oBAxVjBPE_kbCU6SYvDfaiMHR8OglXIC47B_vD73zEAQ-jUvRnMRAvfg9l-ehmoP24BTBjXJEIkeSPiBvG62H1wNBvafL_E9HcV1sXwzELrgxQtAsy5BtMKZN_cxeHSubCSmSl1Xbs](https://lh4.googleusercontent.com/f77Q4rx9-SXc4oBAxVjBPE_kbCU6SYvDfaiMHR8OglXIC47B_vD73zEAQ-jUvRnMRAvfg9l-ehmoP24BTBjXJEIkeSPiBvG62H1wNBvafL_E9HcV1sXwzELrgxQtAsy5BtMKZN_cxeHSubCSmSl1Xbs)
+![Untitled](./pictures/8.png)
 
-[https://lh4.googleusercontent.com/gPEXpgwmxrueFlpKlHsBycZ9kfliUtAPZDQ1fzNjDIzEFjQX77yymGsS7Pg2syOls7vRQDk0D1oK-1IbOo-5VZo05Ob57nqYXFOiUpEMwCOtVVoxO6-TVBsPzku1D3euUkmjC55xSej2Aiv9B8sg6po](https://lh4.googleusercontent.com/gPEXpgwmxrueFlpKlHsBycZ9kfliUtAPZDQ1fzNjDIzEFjQX77yymGsS7Pg2syOls7vRQDk0D1oK-1IbOo-5VZo05Ob57nqYXFOiUpEMwCOtVVoxO6-TVBsPzku1D3euUkmjC55xSej2Aiv9B8sg6po)
+![Untitled](./pictures/9.png)
 
 We've observed an intriguing pattern: following a successful login from a brute force attempt, there's immediate access to the \\*\IPC$ ShareName within the same minute. This strongly suggests that the brute force attack was conducted using the **SMB** (Server Message Block) protocol, potentially through a tool like **CrackMapExec**.
 
 To further validate this hypothesis, I conducted an internet search and came across an event ID related to SMB authentication, which is event ID **551**:
 
-[https://lh5.googleusercontent.com/2V9Vd1PkwPo5JEeFCGLDbskzd0CqS12Zfk0Ib3UFbd2sLg5eR7U_BFai1Tt9Bo5Pg0yXFYzMC7G68q-To5CNXgNaSqhqpGJl6JvpRj8lf10feOShqNb_A8_UvoqCkcyybRECHWoor1rAEzJIgPqwrjQ](https://lh5.googleusercontent.com/2V9Vd1PkwPo5JEeFCGLDbskzd0CqS12Zfk0Ib3UFbd2sLg5eR7U_BFai1Tt9Bo5Pg0yXFYzMC7G68q-To5CNXgNaSqhqpGJl6JvpRj8lf10feOShqNb_A8_UvoqCkcyybRECHWoor1rAEzJIgPqwrjQ)
+![Untitled](./pictures/10.png)
 
 Indeed, we've noted a total of **57 Smb2SessionAuthFailure events**, corresponding precisely to the number of failed login attempts and occurring simultaneously. This confirmation aligns with our initial hypothesis regarding the use of **SMB for the brute force attack**.
 
 Additionally, we've observed that the attacker proceeded to list the **Users** and **Public** directories. Furthermore, they placed a text file named "**local.txt**" and an **lnk** file (shortcut) in the **Public** folder:
 
-[https://lh3.googleusercontent.com/3nYj7jkcLzJuTN_yJJ5oGOr0nlzsecGLXJZWc5cSrsPa59OS3t5h7XEtxyVwK0ch0DY2V4sKyvVIoTJxL6BcZRIX8jUFxyeZtxNEZmsc-cwFIRFXJmqL1cYWHTbLwn1krrX4FgHgXoG8RNzs7xe5zrM](https://lh3.googleusercontent.com/3nYj7jkcLzJuTN_yJJ5oGOr0nlzsecGLXJZWc5cSrsPa59OS3t5h7XEtxyVwK0ch0DY2V4sKyvVIoTJxL6BcZRIX8jUFxyeZtxNEZmsc-cwFIRFXJmqL1cYWHTbLwn1krrX4FgHgXoG8RNzs7xe5zrM)
+![Untitled](./pictures/11.png)
 
 We have successfully accomplished our first goal, which was to determine how the intruder gained access to the network.
 
@@ -162,11 +162,11 @@ Query : event.code:(1 OR 4688) AND process.executable:(*arp.exe* OR *at.exe* OR 
 
 When we filter the results by examining the created processes, we uncover some intriguing findings:
 
-[https://lh5.googleusercontent.com/XXlP3bjcoeRF9EXUVNIozPiDpPue5QlRUkhUZLa4cvZLxATBO1g7Tke-KiZ51jLSoGxzYUDvMGmDGwJB5ptRaB1b643VYIiM00ZKay8NQQ-ytMokAaH2oipczWI20ctmSLyt9WW1NHSBh5WhUe-7Xr4](https://lh5.googleusercontent.com/XXlP3bjcoeRF9EXUVNIozPiDpPue5QlRUkhUZLa4cvZLxATBO1g7Tke-KiZ51jLSoGxzYUDvMGmDGwJB5ptRaB1b643VYIiM00ZKay8NQQ-ytMokAaH2oipczWI20ctmSLyt9WW1NHSBh5WhUe-7Xr4)
+![Untitled](./pictures/12.png)
 
 Let's concentrate first on the Bation Workstation :
 
-[https://lh4.googleusercontent.com/L-0RgtD4nKP1Q3ojCAk4gzSZ8XML7HqBcCfIxGVZI6Bc5JaV0o3tkUa-QhXHXbqSpymBV6RC6jSjsb8RGiWI9SbI2C83YmiC_yAzIIUhOauUsWHm5Yp8FeJKFXIAMPt_RQpqdUNY6UprpkHbXHCu3XM](https://lh4.googleusercontent.com/L-0RgtD4nKP1Q3ojCAk4gzSZ8XML7HqBcCfIxGVZI6Bc5JaV0o3tkUa-QhXHXbqSpymBV6RC6jSjsb8RGiWI9SbI2C83YmiC_yAzIIUhOauUsWHm5Yp8FeJKFXIAMPt_RQpqdUNY6UprpkHbXHCu3XM)
+![Untitled](./pictures/13.png)
 
 We observe the following:
 
@@ -176,7 +176,7 @@ We observe the following:
 
 To gain a deeper understanding of these events, we will proceed by tracking the process tree.
 
-[https://lh4.googleusercontent.com/6XnkKwLlRReZcjp0jp9dvXTa177m5HwpcViVt0b17hL2ZQ1-ok_ut1D8leUD5xu9xskTltwvhJjrx16Z5yvstE4DW5iHfG_SIn2BfOyy32iY3bH4ejXWHhiJrWYZxJS9cFzcUBNZ4wbLOpqkB57eK-0](https://lh4.googleusercontent.com/6XnkKwLlRReZcjp0jp9dvXTa177m5HwpcViVt0b17hL2ZQ1-ok_ut1D8leUD5xu9xskTltwvhJjrx16Z5yvstE4DW5iHfG_SIn2BfOyy32iY3bH4ejXWHhiJrWYZxJS9cFzcUBNZ4wbLOpqkB57eK-0)
+![Untitled](./pictures/14.png)
 
 We will commence by examining the initial process based on its timestamp and tracing its parent process ID :
 
@@ -196,21 +196,22 @@ Queries :
 
 Below is the process tree:
 
-[https://lh5.googleusercontent.com/AqnjtgzirIt31cGa_u3n5JhWtkIJAnN1or5Es29bZlQIZq7P4ZBkSsva5viwa1aw9sTTxc1MK7y9YD1zUsw6VbDDA21gZ30ioZrAoGWPtK2IAooHxnmYNo5D9X-SF8wiDUCRXLRgbNqMzvZ6laqwjEg](https://lh5.googleusercontent.com/AqnjtgzirIt31cGa_u3n5JhWtkIJAnN1or5Es29bZlQIZq7P4ZBkSsva5viwa1aw9sTTxc1MK7y9YD1zUsw6VbDDA21gZ30ioZrAoGWPtK2IAooHxnmYNo5D9X-SF8wiDUCRXLRgbNqMzvZ6laqwjEg)
+![Untitled](./pictures/15.png)
 
 Now, let's investigate and track the actions of process ID **4948**:
 
 From a network standpoint, there's a significant amount of communication originating from the "bastion" workstation towards the IP address "192.168.11.18" on port "80." This strongly suggests the possibility that this IP address serves as the Command and Control (C2) server for the attacker.
 
-[https://lh6.googleusercontent.com/Vv8tSIZ_DDbnMN_7QCsGCCzEGJI0jdncfHovaWt66IWzLOvv1YeA-RtYWcsDnm-Ej1b4tkH0Hj_nKV6sTtZ5Lkmj3NNSaDKyG0fm9XwRKQGiQeRaRK7eV1xAEAlfaeD9_OPR-xK6vZh-KnyBetaVqJs](https://lh6.googleusercontent.com/Vv8tSIZ_DDbnMN_7QCsGCCzEGJI0jdncfHovaWt66IWzLOvv1YeA-RtYWcsDnm-Ej1b4tkH0Hj_nKV6sTtZ5Lkmj3NNSaDKyG0fm9XwRKQGiQeRaRK7eV1xAEAlfaeD9_OPR-xK6vZh-KnyBetaVqJs)
+![Untitled](./pictures/16.png)
 
 The additional events associated with **process ID 4948** involve the creation of other processes and files:
 
-[https://lh3.googleusercontent.com/hD7wpWN6W1ud9aeCtnvkSfp2uJhO1Imq2V2Llx7-dggphHcSUfvdfTZsHiV7-0yB44rAvYMVRRMBq81A19qKHtpP-R8x90O3IR81a3sYto0USYp5P7rwOH8NdPtk2tiU7UHwtqC3FbzHE33v3mRJnp8](https://lh3.googleusercontent.com/hD7wpWN6W1ud9aeCtnvkSfp2uJhO1Imq2V2Llx7-dggphHcSUfvdfTZsHiV7-0yB44rAvYMVRRMBq81A19qKHtpP-R8x90O3IR81a3sYto0USYp5P7rwOH8NdPtk2tiU7UHwtqC3FbzHE33v3mRJnp8)
+![Untitled](./pictures/17.png)
 
 Since we intend to track all the noteworthy processes created later, let's initially focus our attention on the files that have been created:
 
-[https://lh6.googleusercontent.com/16B2zvRpS9A2dSPtGbzCV8DnAdpDEddnKYdBgQgImvd4G3W5lvBdxy7C6EGi0M2EM2jmbvU8gVBZ_2R6mWZWj7wxLeORgdC9bpQfb4QBduyqrtpOwsnwX-5PZ9iqpjZx2wo9s42keY2xcXmlmR3ufmE](https://lh6.googleusercontent.com/16B2zvRpS9A2dSPtGbzCV8DnAdpDEddnKYdBgQgImvd4G3W5lvBdxy7C6EGi0M2EM2jmbvU8gVBZ_2R6mWZWj7wxLeORgdC9bpQfb4QBduyqrtpOwsnwX-5PZ9iqpjZx2wo9s42keY2xcXmlmR3ufmE)
+![Untitled](./pictures/18.png)
+
 
 As we examine the files, we come across an intriguing one named "**PowerUp.ps1**." This file serves as a tool designed to facilitate quick checks for potential privilege escalation opportunities on a Windows machine.
 
