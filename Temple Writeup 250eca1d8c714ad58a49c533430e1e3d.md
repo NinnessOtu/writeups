@@ -16,7 +16,7 @@ Now, let's initiate our investigation into **persistence** techniques. We will c
 Query : (event.code : (1 OR 4688) AND process.command.line : **schtasks**)
 ```
 
-[https://lh5.googleusercontent.com/303E2AZtpXe1PSkzBY0W44_bWOxSzm-IEcfNXDQ3oP02-G3AUrulBibFThlAqz21TChkrSOWdWRDRyuSCMa741ZMp7_KRotVJ4p8HJK6WtO7RqPgaONfNsm7RzkNd5gy233DIFhd_6SxIma9CTES5c8](https://lh5.googleusercontent.com/303E2AZtpXe1PSkzBY0W44_bWOxSzm-IEcfNXDQ3oP02-G3AUrulBibFThlAqz21TChkrSOWdWRDRyuSCMa741ZMp7_KRotVJ4p8HJK6WtO7RqPgaONfNsm7RzkNd5gy233DIFhd_6SxIma9CTES5c8)
+![Untitled](./SECDOJO/pictures/1.png)
 
 We have identified the creation of three scheduled tasks. One, named "**SecUpdate**" was created on the **Bastion** host, while the other two, named "**ADupdate**" and "**NewADupdate**," were created on the **Temple.secdojo.lab**.
 
