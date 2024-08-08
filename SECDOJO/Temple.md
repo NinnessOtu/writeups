@@ -229,7 +229,7 @@ To detect the execution of this script, we will search in the PowerShell logs.
 Query : event.code:(800) AND powershell.command.value:("*Invoke-AllChecks*" OR "*Invoke-ServiceAbuse -Name*")
 ```
 
-[https://lh5.googleusercontent.com/le5uKfEtkshGwaVKhMMUxaW5li2bhJsDKjpCtdQqFgFlm96KMwrCEeymhEFjpzdELFMVENxT1o4246c57IrkBF3UXGJAjFGpVKEJ2Gas0BPQs6erluvL_PpoYikCyCChNECuguLGMgDZjKqVYBmUEVY](https://lh5.googleusercontent.com/le5uKfEtkshGwaVKhMMUxaW5li2bhJsDKjpCtdQqFgFlm96KMwrCEeymhEFjpzdELFMVENxT1o4246c57IrkBF3UXGJAjFGpVKEJ2Gas0BPQs6erluvL_PpoYikCyCChNECuguLGMgDZjKqVYBmUEVY)
+![Untitled](./pictures/19.png)
 
 As we can discern, the attacker's intention was to exploit the SNMP service.
 
@@ -242,13 +242,14 @@ Recall that when we initially embarked on our hunt for **internal reconnaissance
 
 These observations align with the script's actions, indicating that the attacker utilized it to achieve privilege escalation :
 
-![Untitled](Temple%20Writeup%20250eca1d8c714ad58a49c533430e1e3d/Untitled.png)
+![Untitled](./pictures/20.png)
 
 Upon tracking the parent process ID of the identified processes, we discovered that the **PowerUp.ps1** script was responsible for creating the user "**john**" and subsequently adding this user to the **administrators** group. This action was achieved by modifying the registry key associated with the exploited service, namely **SNMP**.
 
 It's important to note that after completing the creation of the user "**john**" and adding them to the local **administrators** group, the script reverted the registry back to its original service executable state :
 
-[https://lh3.googleusercontent.com/ZtvMhaXpB4iGnMhmRJmgaO2eSNdDPy1jK2Ycbb9r0V4GmJzGzDmDAlYflZ6NZFHLfw4GAabkvpUpjg2dbC152xY7tEDYh7oWUQ7fxBgN0yCNRodA188L2AArFAdF39_DBTfMxt8VPBnMkXlCLAdDffA](https://lh3.googleusercontent.com/ZtvMhaXpB4iGnMhmRJmgaO2eSNdDPy1jK2Ycbb9r0V4GmJzGzDmDAlYflZ6NZFHLfw4GAabkvpUpjg2dbC152xY7tEDYh7oWUQ7fxBgN0yCNRodA188L2AArFAdF39_DBTfMxt8VPBnMkXlCLAdDffA)
+![Untitled](./pictures/21.png)
+
 
 Now that we've completed our examination of the file creation events associated with PID 4948, we've established the following results:
 
@@ -259,7 +260,7 @@ As a consequence, the attacker now possesses administrative privileges on the ho
 
 Next, we'll proceed to track the remaining events related to PID **4948** in order to potentially uncover more significant information:
 
-[https://lh3.googleusercontent.com/edygMZYipm5qemW82m_Hl7gVExRXZpZse0GMR70SKEdTE1xC2ZKfdK_bVaypbqS7PnIYoDI9g-8jo5nQ4_u-KEZUW17Die-LEgGXXu3_QgT_ngse9lIxv2GrunZutO_gXdLiaf3Owhx6d2dX9uUTf3U](https://lh3.googleusercontent.com/edygMZYipm5qemW82m_Hl7gVExRXZpZse0GMR70SKEdTE1xC2ZKfdK_bVaypbqS7PnIYoDI9g-8jo5nQ4_u-KEZUW17Die-LEgGXXu3_QgT_ngse9lIxv2GrunZutO_gXdLiaf3Owhx6d2dX9uUTf3U)
+![Untitled](./pictures/22.png)
 
 We will proceed to track process ID **6436**, which was executed by the user "**john**”:
 
@@ -267,7 +268,8 @@ We will proceed to track process ID **6436**, which was executed by the user "**
 Query : (process.pid:6436) OR (process.parent.pid:6436)
 ```
 
-[https://lh4.googleusercontent.com/JBE84a9feFhAUgQqAhQObtWmcePIxMeN8b2Mioez-EsxlnMaH7MJHvEbx99BNXea4TtmUdfmGhnSnRY__3-il0VAo63tTZluqYA6LSI4GGROtOvFOcnBJ8H5BWmA71-m-KkEOXvVK1hOPfIdqz8ITKQ](https://lh4.googleusercontent.com/JBE84a9feFhAUgQqAhQObtWmcePIxMeN8b2Mioez-EsxlnMaH7MJHvEbx99BNXea4TtmUdfmGhnSnRY__3-il0VAo63tTZluqYA6LSI4GGROtOvFOcnBJ8H5BWmA71-m-KkEOXvVK1hOPfIdqz8ITKQ)
+![Untitled](./pictures/23.png)
+
 
 Once more, we will proceed by examining the last process based on its timestamp, which holds the PID **5880**, as the preceding ones do not appear to have notable elements to track:
 
@@ -275,7 +277,8 @@ Once more, we will proceed by examining the last process based on its timestamp,
 Query : (process.pid:5880) OR (process.parent.pid:5880)
 ```
 
-[https://lh3.googleusercontent.com/kRDXW_P4wieUZJJC8LQHI5J7GZrPYO5f1UTkW9adeBAK8y87in266OXN80Dj-Lg974h6zLc3spFNLsAheV8q50NbSXzRNPHdNDECu17Mrla4-DXCsaCzCxWgqUup8dthS7Gwhtg_P77BjU5D6Zh41zw](https://lh3.googleusercontent.com/kRDXW_P4wieUZJJC8LQHI5J7GZrPYO5f1UTkW9adeBAK8y87in266OXN80Dj-Lg974h6zLc3spFNLsAheV8q50NbSXzRNPHdNDECu17Mrla4-DXCsaCzCxWgqUup8dthS7Gwhtg_P77BjU5D6Zh41zw)
+![Untitled](./pictures/24.png)
+
 
 Focusing on the events related to process creation and file creation, we observe the following:
 
@@ -290,7 +293,8 @@ Let's begin by focusing on Mimikatz. Our initial step is to conduct a basic sear
 Query: event.code : (4688 OR 1) AND process.command_line:*mimikatz*
 ```
 
-[https://lh3.googleusercontent.com/_vjaM80fi7rXDKkCs6KIqDCpu0TJhk02FcGePLTP3aPoxgOZcp2pmSIWYbqOWJPefYgeJFI783e-kmfRovV65ewV5eDD6YdkeqX7TrsPbgXrzwC101LiznBU9PInpFYHzENj2HW58nSt0fKToQDdE20](https://lh3.googleusercontent.com/_vjaM80fi7rXDKkCs6KIqDCpu0TJhk02FcGePLTP3aPoxgOZcp2pmSIWYbqOWJPefYgeJFI783e-kmfRovV65ewV5eDD6YdkeqX7TrsPbgXrzwC101LiznBU9PInpFYHzENj2HW58nSt0fKToQDdE20)
+![Untitled](./pictures/25.png)
+
 
 Analyzing the executed commands:
 
@@ -305,7 +309,8 @@ This revelation provides context for the presence of the SharpHound tool. If the
 Query: event.code : (4688 OR 1) AND process.command_line:*SharpHound*
 ```
 
-[https://lh3.googleusercontent.com/8WpFMxAI2ljdLoz-tIuglynS2wcoUPxFw-g4ttxm4YvNhDJLrA96XcwEKvvn6Kkkn7pajpjfnoBShN5WDDaLyd4vReah4Q-SF5bZXw3D9Vt1tGvUybeYCIoJI3NA2RXWBjxToxg74SQ_sN_hYdWM87U](https://lh3.googleusercontent.com/8WpFMxAI2ljdLoz-tIuglynS2wcoUPxFw-g4ttxm4YvNhDJLrA96XcwEKvvn6Kkkn7pajpjfnoBShN5WDDaLyd4vReah4Q-SF5bZXw3D9Vt1tGvUybeYCIoJI3NA2RXWBjxToxg74SQ_sN_hYdWM87U)
+![Untitled](./pictures/26.png)
+
 
 It is evident that the attacker possesses the password for a domain user account named **tsilva**, which has been employed to enumerate the domain using the **SharpHound** tool.
 
@@ -315,7 +320,8 @@ Now, let's investigate the activities conducted by the attacker using the "**tsi
 Query : (related.user:/[Tt][Ss][Ii][Ll][Vv][Aa]/) OR (winlog.event_data.TargetUserName:/[Tt][Ss][Ii][Ll][Vv][Aa]/) OR (winlog.event_data.SubjectUserName:/[Tt][Ss][Ii][Ll][Vv][Aa]/) OR **(winlog.event_data.TargetUser**:/[Tt][Ss][Ii][Ll][Vv][Aa]/**) OR (winlog.event_data.User**:/[Tt][Ss][Ii][Ll][Vv][Aa]/**) OR (winlog.event_data.SourceUser**:/[Tt][Ss][Ii][Ll][Vv][Aa]/**)**
 ```
 
-[https://lh3.googleusercontent.com/hG3qEeOhggU9V4XPcuTL9HFVlmTS95MzzqTnU9wI8rXYgUX6fQpikqfIfyDI_2kSz_R8Vpuwfyz7MktfeUV5P9IUADhLFykVkEW-h9RpKb_l0tPRJo7JZZLrYHrEiMllsBAj4ZBmSpc8vxQptUEhPYY](https://lh3.googleusercontent.com/hG3qEeOhggU9V4XPcuTL9HFVlmTS95MzzqTnU9wI8rXYgUX6fQpikqfIfyDI_2kSz_R8Vpuwfyz7MktfeUV5P9IUADhLFykVkEW-h9RpKb_l0tPRJo7JZZLrYHrEiMllsBAj4ZBmSpc8vxQptUEhPYY)
+![Untitled](./pictures/27.png)
+
 
 From the logs, we can discern that the attacker executed the following actions using the "tsilva" user account:
 
@@ -331,13 +337,15 @@ At this juncture, the next step is to follow a similar investigative process wit
 Query : (related.user:/[Ff][Vv][Ii][Dd][Aa][Ll]/) OR (winlog.event_data.TargetUserName:/[Ff][Vv][Ii][Dd][Aa][Ll]/) OR (winlog.event_data.SubjectUserName:/[Ff][Vv][Ii][Dd][Aa][Ll]/) OR (winlog.event_data.TargetUser:/[Ff][Vv][Ii][Dd][Aa][Ll]/) OR (winlog.event_data.User:/[Ff][Vv][Ii][Dd][Aa][Ll]/) OR (winlog.event_data.SourceUser:/[Ff][Vv][Ii][Dd][Aa][Ll]/)
 ```
 
-[https://lh4.googleusercontent.com/wWop4UA8f2Egv-NusNYTo1LawPhqMp6M_vIaNjp4Iblf3hZyN1e92hWsCorkRlLKJVTA1ZMS2HkRR-YKrnt4NCOD69A0CYmMhNHZbJwKMZ9uur4XXilemaTcIbiugG_VtQCc2NUrmHQ2RwvNDp1ZbM4](https://lh4.googleusercontent.com/wWop4UA8f2Egv-NusNYTo1LawPhqMp6M_vIaNjp4Iblf3hZyN1e92hWsCorkRlLKJVTA1ZMS2HkRR-YKrnt4NCOD69A0CYmMhNHZbJwKMZ9uur4XXilemaTcIbiugG_VtQCc2NUrmHQ2RwvNDp1ZbM4)
+![Untitled](./pictures/28.png)
+
 
 Here are the activities observed for the user "**FVidal**":
 
 1. "FVidal" logged into the DC (**Temple.secdojo.lab**) from the attacker's C2 server:
 
-[https://lh6.googleusercontent.com/LDP9yMyRPUSaQEHcrLV4SnB0EgXFZliKBCB1TTMx2H1p5XhPuhTBE_x2UGQoEbXgMpXOpl1ygs-uCnC4dIwU8v_-oGCm-S_ElVPDpO68wodRVFuO6U0f__AvfFz6GQ2pFfSMBH7L2uHRtYnQ6XRWiVs](https://lh6.googleusercontent.com/LDP9yMyRPUSaQEHcrLV4SnB0EgXFZliKBCB1TTMx2H1p5XhPuhTBE_x2UGQoEbXgMpXOpl1ygs-uCnC4dIwU8v_-oGCm-S_ElVPDpO68wodRVFuO6U0f__AvfFz6GQ2pFfSMBH7L2uHRtYnQ6XRWiVs)
+![Untitled](./pictures/29.png)
+
 
 By examining the **LogonID** of the two login events:
 
@@ -349,7 +357,8 @@ Query:  winlog.event_data.SubjectLogonId:(0x7c05d2) OR winlog.event_data.Target
 
 there is nothing noteworthy to track. :
 
-[https://lh6.googleusercontent.com/9JEg13F7MM8gX9lzEhr149fP5R02EdLf_H7Q1AaeGzmDrXBPMHIKbc41gl17f0RI-xgxDHlwmc2eGAMTPUu98WttfGK2aV9hXUr9k29w6FqZA9aq4YdbDPKKWJH68vQ2kZOJRh7BvXurkjs_hHjNGww](https://lh6.googleusercontent.com/9JEg13F7MM8gX9lzEhr149fP5R02EdLf_H7Q1AaeGzmDrXBPMHIKbc41gl17f0RI-xgxDHlwmc2eGAMTPUu98WttfGK2aV9hXUr9k29w6FqZA9aq4YdbDPKKWJH68vQ2kZOJRh7BvXurkjs_hHjNGww)
+![Untitled](./pictures/30.png)
+
 
 - On the other hand the logon ID: 0x7c0625
 
@@ -357,7 +366,7 @@ there is nothing noteworthy to track. :
 Query:  winlog.event_data.SubjectLogonId:(0x7c0625) OR winlog.event_data.TargetLogonId:(0x7c0625)
 ```
 
-[https://lh5.googleusercontent.com/4Ta1QBRcHtd_Ikd31LavkOzRspYb56oN1C7VDbs3Y4U_kjTrRWdooAsqitL_jZMcqht-yagdW6KdHZ3K7iGh6S05nNhyBOCBb5b_7MYv_-6jDRZ--bvcRI9gsDy5iy8rWBWbhBjMosQkG1fcLQug_mU](https://lh5.googleusercontent.com/4Ta1QBRcHtd_Ikd31LavkOzRspYb56oN1C7VDbs3Y4U_kjTrRWdooAsqitL_jZMcqht-yagdW6KdHZ3K7iGh6S05nNhyBOCBb5b_7MYv_-6jDRZ--bvcRI9gsDy5iy8rWBWbhBjMosQkG1fcLQug_mU)
+![Untitled](./pictures/31.png)
 
 We should focus our attention on the events related to **Directory Service Access**, which seem to hold valuable information. To do this, we will filter these events and specifically look for those associated with the Subject username "**FVidal**”:
 
@@ -365,7 +374,7 @@ We should focus our attention on the events related to **Directory Service Acces
 Query : (event.code:4662) AND (winlog.event_data.SubjectUserName:/[Ff][Vv][Ii][Dd][Aa][Ll]/)
 ```
 
-[https://lh6.googleusercontent.com/CwrXO1bVCcDEa3YZwAGuGlMeTU1-6dHEOotFRwO62UcpSisxCjq227GH5L3XppVfjTevq6pZRD-m1F8_2Y2XCCbzrFn9JhTyl6We0NTPC_ZAexqNRvNdLbkZzdy8-EPGVddQZDkB4WityJZ5VJ731bs](https://lh6.googleusercontent.com/CwrXO1bVCcDEa3YZwAGuGlMeTU1-6dHEOotFRwO62UcpSisxCjq227GH5L3XppVfjTevq6pZRD-m1F8_2Y2XCCbzrFn9JhTyl6We0NTPC_ZAexqNRvNdLbkZzdy8-EPGVddQZDkB4WityJZ5VJ731bs)
+![Untitled](./pictures/32.png)
 
 As observed, a **Dcsync** activity was detected in Windows Security **Event ID 4662**. Key indicators include a **non-computer-based** account (**FVidal**), an access mask of **0x100**, targeting an Active Directory object of class **domainDNS**, and utilizing the Control Access Rights **DS-Replication-Get-Changes** and **DS-Replication-Get-Changes-All**.
 
@@ -377,7 +386,7 @@ Now, let's proceed to check if there are any logging or other events involving t
 Query : (related.user:/[Aa][Dd][Mm][Ii][Nn][Ii][Ss][Tt][Rr][Aa][Tt][Oo][Rr]/) OR (winlog.event_data.TargetUserName:/[Aa][Dd][Mm][Ii][Nn][Ii][Ss][Tt][Rr][Aa][Tt][Oo][Rr]/) OR (winlog.event_data.SubjectUserName:/[Aa][Dd][Mm][Ii][Nn][Ii][Ss][Tt][Rr][Aa][Tt][Oo][Rr]/) OR (winlog.event_data.TargetUser:/[Aa][Dd][Mm][Ii][Nn][Ii][Ss][Tt][Rr][Aa][Tt][Oo][Rr]/) OR (winlog.event_data.User:/[Aa][Dd][Mm][Ii][Nn][Ii][Ss][Tt][Rr][Aa][Tt][Oo][Rr]/) OR (winlog.event_data.SourceUser:/[Aa][Dd][Mm][Ii][Nn][Ii][Ss][Tt][Rr][Aa][Tt][Oo][Rr]/) OR (related.user:/[Kk][Rr][Bb][Tt][Gg][Tt]/) OR (winlog.event_data.TargetUserName:/[Kk][Rr][Bb][Tt][Gg][Tt]/) OR (winlog.event_data.SubjectUserName:/[Kk][Rr][Bb][Tt][Gg][Tt]/) OR (winlog.event_data.TargetUser:/[Kk][Rr][Bb][Tt][Gg][Tt]/) OR (winlog.event_data.User:/[Kk][Rr][Bb][Tt][Gg][Tt]/) OR (winlog.event_data.SourceUser:/[Kk][Rr][Bb][Tt][Gg][Tt]/)
 ```
 
-[https://lh3.googleusercontent.com/4llT8wivQm6GDcHqCsvvrmRWmi5JNnqWRfecUrdtCnVJKvB7ZpPtPk_hc5-mTzwfbDQcMjjAiGC1_T5HBo8orDYqcsaZvyMNHd7CoqVos4QPWLRG1ReEh2zcNJtJO1475Z-A0zEfGhRJBIR4seByH-Y](https://lh3.googleusercontent.com/4llT8wivQm6GDcHqCsvvrmRWmi5JNnqWRfecUrdtCnVJKvB7ZpPtPk_hc5-mTzwfbDQcMjjAiGC1_T5HBo8orDYqcsaZvyMNHd7CoqVos4QPWLRG1ReEh2zcNJtJO1475Z-A0zEfGhRJBIR4seByH-Y)
+![Untitled](./pictures/33.png)
 
 As we can discern, there is network communication with the attacker's C2 server through PowerShell. To gain further insight, we will trace the process with **PID 3544**, using the following queries :
 
@@ -395,9 +404,9 @@ As we can discern, there is network communication with the attacker's C2 server 
 
 Upon investigating process **ID 3544**, we find that it is associated with a PowerShell command line to download an "**apt2**" file from the attacker's C2 server:
 
-[https://lh5.googleusercontent.com/wWkvTduutM6p5FOKwS1j-IyNezD6C-0OPNN8YNu38sfalcITURj7lRSTPH5CYqmkFmJol-o4KIS4hlFnNuZvaNLq3L1p4sCHO5q7Y0E_O-gCeS4NncsGUe8TFz_BfY27_AkJ7k4coLJEHqX7c5eQ4Ho](https://lh5.googleusercontent.com/wWkvTduutM6p5FOKwS1j-IyNezD6C-0OPNN8YNu38sfalcITURj7lRSTPH5CYqmkFmJol-o4KIS4hlFnNuZvaNLq3L1p4sCHO5q7Y0E_O-gCeS4NncsGUe8TFz_BfY27_AkJ7k4coLJEHqX7c5eQ4Ho)
+![Untitled](./pictures/34.png)
 
-[https://lh5.googleusercontent.com/t67N93iYADKWh5Gzv8ofPAVrGaGX6BkmrQYBJ_6ldnlmb3meTDtCN-BU_QkiJD5fQZ9CdD3FjYfUYHcdg0AOOm7NPQH10UkZhNoYpIgjJmipxTZUmIsEO3J6FgVgM3SCfzmkwhNACGpp0p0AfEs1fi8](https://lh5.googleusercontent.com/t67N93iYADKWh5Gzv8ofPAVrGaGX6BkmrQYBJ_6ldnlmb3meTDtCN-BU_QkiJD5fQZ9CdD3FjYfUYHcdg0AOOm7NPQH10UkZhNoYpIgjJmipxTZUmIsEO3J6FgVgM3SCfzmkwhNACGpp0p0AfEs1fi8)
+![Untitled](./pictures/35.png)
 
 As we observe, this sequence of events began with process **ID 756**, which serves as a parent process for two instances of the executable **C:\Windows\system32\wsmprovhost.exe**. These instances possess **different LogonIDs**. To comprehensively understand the attacker's activities using the Administrator account, we will track the **LogonIDs** associated with these **two sessions**.
 
@@ -407,7 +416,7 @@ Let's commence by examining the first session, as it occurred immediately after 
 Query : (winlog.logon.id : 0x7c2203) OR (winlog.event_data.LogonId : 0x7c2203)
 ```
 
-[https://lh5.googleusercontent.com/DFIjWHOcoWl4Y0sjV1b2wBytcj0nvyVAnnQRi9R1kji7Q6mZeg7fpOBpprvdWMvpoVdOHzeFSOfxRVocyqiWietRvQO0uSEwH3OLG5RFMksbVkLaXrJ89Gs01_90Mgrl9KyQZ32ezmAmzkZlnwyOXnM](https://lh5.googleusercontent.com/DFIjWHOcoWl4Y0sjV1b2wBytcj0nvyVAnnQRi9R1kji7Q6mZeg7fpOBpprvdWMvpoVdOHzeFSOfxRVocyqiWietRvQO0uSEwH3OLG5RFMksbVkLaXrJ89Gs01_90Mgrl9KyQZ32ezmAmzkZlnwyOXnM)
+![Untitled](./pictures/36.png)
 
 Numerous intriguing events have been identified, but we will begin by investigating the process creation events.
 
@@ -415,7 +424,7 @@ Numerous intriguing events have been identified, but we will begin by investigat
 Query : (event.code: (4688 OR 1)) AND ((winlog.logon.id : 0x7c2203) OR (winlog.event_data.LogonId : 0x7c2203))
 ```
 
-[https://lh4.googleusercontent.com/r8in6WDyHLVsp36FGG9xLstItMfD_0-caCc-VWN7TpEngjT4NLDm0Xi3FEnbjGPBk2t0_PNN-jb7st3BTIoK5l4Rdb8QoDrET9g63XLkYhoxnxQhTzIUXEG9RKmEJ_MpyjPTRNF_L9SbO2oHnzEsSLo](https://lh4.googleusercontent.com/r8in6WDyHLVsp36FGG9xLstItMfD_0-caCc-VWN7TpEngjT4NLDm0Xi3FEnbjGPBk2t0_PNN-jb7st3BTIoK5l4Rdb8QoDrET9g63XLkYhoxnxQhTzIUXEG9RKmEJ_MpyjPTRNF_L9SbO2oHnzEsSLo)
+![Untitled](./pictures/37.png)
 
 As we can observe, process **PID 3544**, which corresponds to the PowerShell command responsible for downloading the "**apt2**" file from the C2 server at **192.168.11.18**, acts as the parent process for all the processes in the query hits.
 
@@ -479,7 +488,7 @@ After each creation, a check was performed to confirm the existence of the creat
 
 Now, let's examine the other events associated with the process ID **3544**:
 
-[https://lh5.googleusercontent.com/O51eHzO1czhiH0ypobrDlZG8T9dbI4-Pxc6RPsZ4zL_cgDydnirrhXXO9-uSRolSTZR3Kd_T-SylfEnpYFRKFe2V5JKoHW9fUr_eS3XWPwqfZyRjK4rbHIF3nA9aeZTEsk28kzyvflfTgQsJpK8UmP0](https://lh5.googleusercontent.com/O51eHzO1czhiH0ypobrDlZG8T9dbI4-Pxc6RPsZ4zL_cgDydnirrhXXO9-uSRolSTZR3Kd_T-SylfEnpYFRKFe2V5JKoHW9fUr_eS3XWPwqfZyRjK4rbHIF3nA9aeZTEsk28kzyvflfTgQsJpK8UmP0)
+![Untitled](./pictures/38.png)
 
 The remaining events are tied to the creation of the two users, **e.mask** and **Elon Notmusk.** This action aligns with the decoded base64 PowerShell command, confirming the successful creation of these users.
 
@@ -487,7 +496,7 @@ One noteworthy observation is that the attacker **deleted the user** **e.musk** 
 
 Furthermore, by tracing the **process ID without a specific logonID**, we discover that a file was created:
 
-[https://lh3.googleusercontent.com/cl1fKQIOceV-GeExeZdjOGuNu0pIINrGTuoZA81SSk4xpJ1T3MZuNcatqDTAGgGJpTcty6QNsAsJS8eO1B5AX1v-wUF6GMzMkexXOUsVR6rg32hwQm2dQ9xd950_gFXhK3jE5-BeslC0BvpOeu-zR70](https://lh3.googleusercontent.com/cl1fKQIOceV-GeExeZdjOGuNu0pIINrGTuoZA81SSk4xpJ1T3MZuNcatqDTAGgGJpTcty6QNsAsJS8eO1B5AX1v-wUF6GMzMkexXOUsVR6rg32hwQm2dQ9xd950_gFXhK3jE5-BeslC0BvpOeu-zR70)
+![Untitled](./pictures/39.png)
 
 **Rubeus.exe** which is a C# toolkit for Kerberos interaction and abuses. Kerberos, as we all know, is a ticket-based network authentication protocol and is used in Active Directories. Unfortunately, due to human error, oftentimes AD is not configured properly keeping security in mind. Rubeus can exploit vulnerabilities arising out of these misconfigurations and perform functions such as crafting keys and granting access using forged certificates. The article serves as a guide on using Rubeus in various scenarios.
 
@@ -495,13 +504,13 @@ Furthermore, by tracing the **process ID without a specific logonID**, we discov
 
 Anyway, let's proceed to track the other logonID associated with the process ID **756**:
 
-[https://lh5.googleusercontent.com/t67N93iYADKWh5Gzv8ofPAVrGaGX6BkmrQYBJ_6ldnlmb3meTDtCN-BU_QkiJD5fQZ9CdD3FjYfUYHcdg0AOOm7NPQH10UkZhNoYpIgjJmipxTZUmIsEO3J6FgVgM3SCfzmkwhNACGpp0p0AfEs1fi8](https://lh5.googleusercontent.com/t67N93iYADKWh5Gzv8ofPAVrGaGX6BkmrQYBJ_6ldnlmb3meTDtCN-BU_QkiJD5fQZ9CdD3FjYfUYHcdg0AOOm7NPQH10UkZhNoYpIgjJmipxTZUmIsEO3J6FgVgM3SCfzmkwhNACGpp0p0AfEs1fi8)
+![Untitled](./pictures/40.png)
 
 ```yaml
 Query : (winlog.logon.id : 0x82a906) OR (winlog.event_data.LogonId : 0x82a906)
 ```
 
-[https://lh4.googleusercontent.com/vSbVYPASP0gnVaKwmYuBv9xI5HFU2vjNswtgXjwBwcSYXZ0iBc_cBEh19JyMEdlEBvQp9Mea5_ckM7mdfrt6sbJgUpaNV-NhpU7QQP4FfprXcNJcVlD_9nzbbC6JOZr8WmNR6Vyd-2RWCxq1NCMzc4A](https://lh4.googleusercontent.com/vSbVYPASP0gnVaKwmYuBv9xI5HFU2vjNswtgXjwBwcSYXZ0iBc_cBEh19JyMEdlEBvQp9Mea5_ckM7mdfrt6sbJgUpaNV-NhpU7QQP4FfprXcNJcVlD_9nzbbC6JOZr8WmNR6Vyd-2RWCxq1NCMzc4A)
+![Untitled](./pictures/41.png)
 
 As we can see, we were trying to enumerate the domain users and also trying to search if there was a user named **Enotmsuk**.
 
@@ -527,7 +536,7 @@ In our specific case, based on the analysis of sysmon event logs, it appears tha
 Query: event.code:(17 OR 18) AND [file.name](http://file.name/):(\\msagent_* OR \\DserNamePipe* OR \\srvsvc_* OR \\postex_* OR \\status_* OR \\MSSE-* OR \\spoolss_* OR \\win_svc* OR \\ntsvcs* OR \\winsock* OR \\UIA_PIPE*)
 ```
 
-![Untitled](Temple%20Writeup%20250eca1d8c714ad58a49c533430e1e3d/Untitled%201.png)
+![Untitled](./pictures/42.png)
 
 As we can we got some hits for named pipe that start with **\postex_**
 
@@ -539,7 +548,7 @@ Cobalt Strike spawns rundll32 without any command-line and regularly injects the
 Queury: (event.code : 1) AND (process.executable:**\\rundll32.exe) AND (process.command_line:**\\rundll32.exe)
 ```
 
-![Untitled](Temple%20Writeup%20250eca1d8c714ad58a49c533430e1e3d/Untitled%202.png)
+![Untitled](./pictures/43.png)
 
 There are numerous signs pointing to the utilization of Cobalt Strike that we could look for, but we'll conclude our investigation with the mentioned artifacts.
 
@@ -547,7 +556,7 @@ There are numerous signs pointing to the utilization of Cobalt Strike that we co
 
 Here is a summary with a timeline of the attacker's activities on the network:
 
-![Untitled](Temple%20Writeup%20250eca1d8c714ad58a49c533430e1e3d/Untitled%203.png)
+![Untitled](./pictures/44.png)
 
 # LAB Answers :
 
