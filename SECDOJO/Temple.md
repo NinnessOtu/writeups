@@ -50,11 +50,11 @@ While analyzing the created processes, we have come across some noteworthy findi
 
 ![Untitled](./pictures/2.png)
 
-The information we've gathered so far is valuable, but for now, let's refocus on our primary objective: identifying the source of this breach. Upon analyzing login event ID 4624, we have identified a potential use of the "pass the hash" technique, specifically targeting the **Guest** account.
+While this information is useful, our main focus is to identify the source of the breach. By analyzing login event ID 4624, we found a potential use of the "pass the hash" technique targeting the Guest account.
 
 ![Untitled](./pictures/3.png)
 
-This appears intriguing, but we won't halt our investigation at this point. Instead, we will proceed by tracing the **logonID** of the subject user to further scrutinize their actions and determine the origin of these activities:
+This is interesting, but we won't stop here. We will continue by tracing the logonID of the subject user to investigate their actions and find out where these activities originated:
 
 ```yaml
 Query : ((winlog.logon.id : 0x893c5f) OR (winlog.event_data.LogonId : 0x893c5f))
