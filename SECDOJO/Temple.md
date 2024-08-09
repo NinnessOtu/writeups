@@ -4,23 +4,25 @@
 
 In this guide, we’ll take you through the Temple threat hunting lab on the SecDojo platform. This walkthrough provides a detailed, step-by-step look at how to investigate a cyber attack in a Windows environment. We'll explore each stage of the investigation, breaking down the tactics, techniques, and procedures used by the attackers.
 
-# Objective 1: Our primary objective is to comprehend how the intruder managed to infiltrate our network. Subsequently, we will delve into the data to assess the extent of their impact. To achieve this, we must establish an initial hypothesis.
+# Objective 1: Our main goal is to understand how the intruder initially got into our network. After that, we'll examine the data to determine the extent of their impact. To do this, we need to start with an initial hypothesis.
 
 ## Hypothesis:
 
 Our hypothesis is that an attacker has successfully gained access to our network and established **persistence**.
 
-Now, let's initiate our investigation into **persistence** techniques. We will commence by investigating one of the most commonly employed methods: scheduled tasks. Our approach involves searching for any processes that have been created and contain the term "schtasks" within their command line.
+Now, we'll start investigating how they might have done this. One common method is using scheduled tasks. We'll look for processes that include the term "schtasks" in their command line.
 
 ```yaml
-Query : (event.code : (1 OR 4688) AND process.command.line : **schtasks**)
+Query : (event.code : (1 OR 4688) AND process.command.line : *schtasks*)
 ```
 
 ![Untitled](./pictures/1.png)
 
-We have identified the creation of three scheduled tasks. One, named "**SecUpdate**" was created on the **Bastion** host, while the other two, named "**ADupdate**" and "**NewADupdate**," were created on the **Temple.secdojo.lab**.
+We found three scheduled tasks:
 
-Interestingly, all three tasks executed the same PowerShell command:
+**SecUpdate** on the **Bastion** host
+**ADupdate** and **NewADupdate** on Temple.secdojo.lab
+All three tasks ran the same PowerShell command:
 
 ```powershell
 powershell.exe -exec bypass -enc ZQBjAGgAbwAgACIAcABlAHIAcwBpAHMAdABlAG4AYwBlACIACgA=
