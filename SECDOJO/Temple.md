@@ -20,9 +20,9 @@ Query : (event.code : (1 OR 4688) AND process.command.line : *schtasks*)
 
 We found three scheduled tasks:
 
-**SecUpdate** on the **Bastion** host
+- **SecUpdate** on the **Bastion** host
 
-**ADupdate** and **NewADupdate** on **Temple.secdojo.lab**
+- **ADupdate** and **NewADupdate** on **Temple.secdojo.lab**
 
 All three tasks ran the same PowerShell command:
 
@@ -32,7 +32,7 @@ powershell.exe -exec bypass -enc ZQBjAGgAbwAgACIAcABlAHIAcwBpAHMAdABlAG4AYwBlACI
 
 Upon decoding the base64-encoded section, we reveal the following command: **`echo "persistence"`**
 
-However, our primary focus isn't to delve deeply into this discovery. Our initial objective revolves around tracing the intruder's entry point. To achieve this, we will prioritize the first event among the six hits, based on the timestamp. Specifically, we will examine the scheduled task created by "**john**" on the **Bastion** host and track the associated **logonID** to ascertain john's activities on the **Bastion** host leading up to the creation of the scheduled task.
+However, Our main goal is to trace how the intruder initially got into the network. We'll start by focusing on the earliest event from the six hits based on the timestamp. Specifically, we’ll look at the scheduled task created by "john" on the Bastion host and track the logonID to understand john’s activities on the Bastion host before the task was created.
 
 ```yaml
 Query : (winlog.logon.id : 0x8a11df) OR (winlog.event_data.LogonId : 0x8a11df)
