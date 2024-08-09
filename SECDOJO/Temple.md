@@ -248,19 +248,21 @@ These observations align with the script's actions, indicating that the attacker
 
 ![Untitled](./pictures/20.png)
 
-Upon tracking the parent process ID of the identified processes, we discovered that the **PowerUp.ps1** script was responsible for creating the user "**john**" and subsequently adding this user to the **administrators** group. This action was achieved by modifying the registry key associated with the exploited service, namely **SNMP**.
 
-It's important to note that after completing the creation of the user "**john**" and adding them to the local **administrators** group, the script reverted the registry back to its original service executable state :
+By tracking the parent process ID of the identified processes, we found that the **PowerUp.ps1** script created the user "**john**" and added this user to the **administrators** group. This was done by modifying the registry key related to the exploited **SNMP** service.
+
+It's important to note that after creating the user "**john**" and adding them to the local **administrators** group, the script reverted the registry to its original service executable state:
+
 
 ![Untitled](./pictures/21.png)
 
 
-Now that we've completed our examination of the file creation events associated with PID 4948, we've established the following results:
+After examining the file creation events associated with PID 4948, we have the following results:
 
-- The attacker exploited the **SNMP** service using **PowerUp.ps1** tool.
+- The attacker exploited the **SNMP** service using the **PowerUp.ps1** tool.
 - They created a user named "**john**" and added this user to the local **administrators** group on the Bastion workstation.
 
-As a consequence, the attacker now possesses administrative privileges on the host named **Bastion**.
+As a result, the attacker now has administrative privileges on the host named **Bastion**.
 
 Next, we'll proceed to track the remaining events related to PID **4948** in order to potentially uncover more significant information:
 
