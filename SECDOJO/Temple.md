@@ -21,7 +21,9 @@ Query : (event.code : (1 OR 4688) AND process.command.line : *schtasks*)
 We found three scheduled tasks:
 
 **SecUpdate** on the **Bastion** host
-**ADupdate** and **NewADupdate** on Temple.secdojo.lab
+
+**ADupdate** and **NewADupdate** on **Temple.secdojo.lab**
+
 All three tasks ran the same PowerShell command:
 
 ```powershell
