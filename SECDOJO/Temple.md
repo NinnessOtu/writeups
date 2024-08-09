@@ -2,7 +2,7 @@
 
 # Introduction :
 
-In this comprehensive write-up, we will embark on a guided journey through the Temple threat hunting lab, which is hosted on the SecDojo platform. This walkthrough will provide us with a detailed, step-by-step exploration of the investigative process, aiming to enhance our understanding of a cyber attack within a Windows environment. Throughout this narrative, we will dissect the various stages of the investigation, dissecting the tactics, techniques, and procedures employed by threat actors
+In this guide, we’ll take you through the Temple threat hunting lab on the SecDojo platform. This walkthrough provides a detailed, step-by-step look at how to investigate a cyber attack in a Windows environment. We'll explore each stage of the investigation, breaking down the tactics, techniques, and procedures used by the attackers.
 
 # Objective 1: Our primary objective is to comprehend how the intruder managed to infiltrate our network. Subsequently, we will delve into the data to assess the extent of their impact. To achieve this, we must establish an initial hypothesis.
 
