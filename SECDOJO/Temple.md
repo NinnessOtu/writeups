@@ -329,15 +329,15 @@ Query : (related.user:/[Tt][Ss][Ii][Ll][Vv][Aa]/) OR (winlog.event_data.TargetUs
 ![Untitled](./pictures/27.png)
 
 
-From the logs, we can discern that the attacker executed the following actions using the "tsilva" user account:
+Based on the logs, we can see that the attacker performed the following actions using the "tsilva" user account:
 
 1. There was an explicit logon by "**john**" as a "**tsilva**" user, originating from the **BASTION** workstation and connecting to the DC "**Temple.secdojo.lab**" This login was used to launch the SharpHound command for domain enumeration.
 2. "**tsilva**" was logged into the DC from the attacker's C2 server, which happens to be a **KALI** machine.
 3. "**tsilva**" reset the password for another user named "**FVidal**."
 
-Following the completion of these actions, the attacker logged out from the "**tsilva**" account, and there don't appear to be any other significant activities associated with it in the logs.
+Following the completion of these actions, the attacker logged out from the "**tsilva**" account, and There don't seem to be any other significant activities associated with this account in the logs.
 
-At this juncture, the next step is to follow a similar investigative process with the "**FVidal**" user account and determine what the attacker has done with it :
+Next, we need to follow a similar investigative process with **FVidal** user account to determine what actions the attacker has taken with it.
 
 ```yaml
 Query : (related.user:/[Ff][Vv][Ii][Dd][Aa][Ll]/) OR (winlog.event_data.TargetUserName:/[Ff][Vv][Ii][Dd][Aa][Ll]/) OR (winlog.event_data.SubjectUserName:/[Ff][Vv][Ii][Dd][Aa][Ll]/) OR (winlog.event_data.TargetUser:/[Ff][Vv][Ii][Dd][Aa][Ll]/) OR (winlog.event_data.User:/[Ff][Vv][Ii][Dd][Aa][Ll]/) OR (winlog.event_data.SourceUser:/[Ff][Vv][Ii][Dd][Aa][Ll]/)
@@ -384,7 +384,7 @@ Query : (event.code:4662) AND (winlog.event_data.SubjectUserName:/[Ff][Vv][Ii][D
 
 As observed, a **Dcsync** activity was detected in Windows Security **Event ID 4662**. Key indicators include a **non-computer-based** account (**FVidal**), an access mask of **0x100**, targeting an Active Directory object of class **domainDNS**, and utilizing the Control Access Rights **DS-Replication-Get-Changes** and **DS-Replication-Get-Changes-All**.
 
-At this stage, the attacker has acquired the NTLM hashes for crucial accounts in the Active Directory, such as **Administrator** and **krbtgt**. This provides the attacker with the means to potentially log in and execute further suspicious activities.
+At this stage, the attacker has obtained the NTLM hashes for critical Active Directory accounts, including **Administrator** and **krbtgt**. This allows the attacker to potentially log in and perform additional suspicious activities.
 
 Now, let's proceed to check if there are any logging or other events involving the use of **Administrator** or **krbtgt** from the attacker's IP (**192.168.11.18**) subsequent to obtaining the NTLM hashes :
 
@@ -394,7 +394,7 @@ Query : (related.user:/[Aa][Dd][Mm][Ii][Nn][Ii][Ss][Tt][Rr][Aa][Tt][Oo][Rr]/) OR
 
 ![Untitled](./pictures/33.png)
 
-As we can discern, there is network communication with the attacker's C2 server through PowerShell. To gain further insight, we will trace the process with **PID 3544**, using the following queries :
+We’ve observed network communication with the attacker’s C2 server through PowerShell. To gain more insight, we will trace the process with **PID 3544** using the following queries:
 
 ```yaml
 (process.pid:3544) OR (process.parent.pid:3544)
@@ -414,9 +414,9 @@ Upon investigating process **ID 3544**, we find that it is associated with a Pow
 
 ![Untitled](./pictures/35.png)
 
-As we observe, this sequence of events began with process **ID 756**, which serves as a parent process for two instances of the executable **C:\Windows\system32\wsmprovhost.exe**. These instances possess **different LogonIDs**. To comprehensively understand the attacker's activities using the Administrator account, we will track the **LogonIDs** associated with these **two sessions**.
+We see that this sequence of events started with process **ID 756**, which is the parent process for two instances of **C:\Windows\system32\wsmprovhost.exe**, each with **different LogonIDs**. To fully understand the attacker’s activities using the Administrator account, we will track the **LogonIDs** associated with these **two sessions**.
 
-Let's commence by examining the first session, as it occurred immediately after the **Dcsync** event:
+Let's start by examining the first session, as it occurred immediately after the **Dcsync** event:
 
 ```yaml
 Query : (winlog.logon.id : 0x7c2203) OR (winlog.event_data.LogonId : 0x7c2203)
@@ -424,7 +424,7 @@ Query : (winlog.logon.id : 0x7c2203) OR (winlog.event_data.LogonId : 0x7c2203)
 
 ![Untitled](./pictures/36.png)
 
-Numerous intriguing events have been identified, but we will begin by investigating the process creation events.
+We’ve found many interesting events, but we’ll start by looking into the process creation events:
 
 ```yaml
 Query : (event.code: (4688 OR 1)) AND ((winlog.logon.id : 0x7c2203) OR (winlog.event_data.LogonId : 0x7c2203))
